@@ -1,8 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
-from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy import UniqueConstraint, Text
+from sqlalchemy import UniqueConstraint, Text, JSON
 from .typing import Mapped, mapped_column
 from .base import TimestampMixin
 from ..extensions import db
@@ -20,7 +19,7 @@ class AboutProfile(db.Model, TimestampMixin):
     email: Mapped[Optional[str]] = mapped_column(nullable=True)
     location: Mapped[Optional[str]] = mapped_column(nullable=True)
     avatar_url: Mapped[Optional[str]] = mapped_column(nullable=True)
-    social_links: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    social_links: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     def __repr__(self) -> str:
         return f"<AboutProfile {self.name or 'about'}>"

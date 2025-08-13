@@ -1,8 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
-from sqlalchemy import Boolean, Text
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Boolean, Text, JSON
 from .typing import Mapped, mapped_column
 from .base import TimestampMixin
 from ..extensions import db
@@ -17,7 +16,7 @@ class BlogPost(db.Model, TimestampMixin):
     slug: Mapped[str] = mapped_column(unique=True, nullable=False, index=True)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     is_published: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
-    meta: Mapped[Optional[dict]] = mapped_column(JSONB, nullable=True)
+    meta: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     def __repr__(self) -> str:
         return f"<BlogPost {self.slug}>"

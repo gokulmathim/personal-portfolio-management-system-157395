@@ -16,22 +16,28 @@ def load_config(app) -> None:
         CORS_ORIGINS: Comma-separated origins allowed for CORS.
         DB_AUTO_CREATE: 'true' to auto-create tables on startup (default true).
         DEBUG: 'true' to enable debug.
+
+    Behavior when variables are missing (development-friendly fallbacks):
+        - If database variables are absent, fallback to a local SQLite database under app.instance_path.
+        - If JWT_SECRET_KEY is absent, fallback to a non-empty default (for development only).
     """
     app.config["DEBUG"] = os.getenv("DEBUG", "false").lower() == "true"
 
     # Database
     db_url = _get_database_url_from_env()
     if not db_url:
-        raise RuntimeError(
-            "Database configuration missing. Provide DATABASE_URL or POSTGRES_* variables."
-        )
+        # Development fallback: use SQLite DB in the app's instance folder
+        os.makedirs(app.instance_path, exist_ok=True)
+        sqlite_db_path = os.path.join(app.instance_path, "app.db")
+        db_url = f"sqlite:///{sqlite_db_path}"
     app.config["SQLALCHEMY_DATABASE_URI"] = db_url
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # JWT
     jwt_secret = os.getenv("JWT_SECRET_KEY")
     if not jwt_secret:
-        raise RuntimeError("JWT_SECRET_KEY environment variable is required.")
+        # Development fallback secret to avoid startup failure; override via env in production.
+        jwt_secret = os.getenv("FLASK_SECRET_KEY") or os.getenv("SECRET_KEY") or "dev-change-me"
     app.config["JWT_SECRET_KEY"] = jwt_secret
 
     # CORS

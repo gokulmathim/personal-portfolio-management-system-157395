@@ -20,7 +20,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.url_map.strict_slashes = False
 
-    # Load configuration from environment variables
+    # Load configuration from environment variables (with safe fallbacks for development)
     load_config(app)
 
     # CORS configuration - allow all origins by default or restrict via env config
@@ -66,4 +66,3 @@ def create_app() -> Flask:
 
 # Create default app for run.py and openapi generation
 app = create_app()
-api = Api(app)
