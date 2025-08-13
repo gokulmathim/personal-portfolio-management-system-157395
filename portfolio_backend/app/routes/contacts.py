@@ -11,7 +11,7 @@ blp = Blueprint("Contacts", "contacts", url_prefix="/contacts", description="Con
 def _paginate(query):
     page = int(request.args.get("page", 1))
     per_page = min(int(request.args.get("per_page", 20)), 100)
-    return query.paginate(page=page, per_page=per_page, error_out=False)
+    return db.paginate(query, page=page, per_page=per_page, error_out=False)
 
 @blp.route("/")
 class ContactsCollection(MethodView):

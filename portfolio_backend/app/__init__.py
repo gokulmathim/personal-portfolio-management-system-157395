@@ -10,6 +10,9 @@ from .routes.blogs import blp as blogs_blp
 from .routes.about import blp as about_blp
 from .routes.contacts import blp as contacts_blp
 
+# Expose the Api instance at module level so other modules (e.g., generate_openapi.py) can access the fully-registered spec.
+api = None  # Will be initialized in create_app()
+
 # PUBLIC_INTERFACE
 def create_app() -> Flask:
     """Create and configure the Flask application.
@@ -44,6 +47,7 @@ def create_app() -> Flask:
     ]
 
     # Initialize extensions
+    global api
     api = Api(app)
     db.init_app(app)
     jwt.init_app(app)

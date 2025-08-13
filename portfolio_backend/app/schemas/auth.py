@@ -10,4 +10,4 @@ class RegisterSchema(Schema):
 
 class TokenSchema(Schema):
     access_token = fields.Str(required=True, dump_only=True, metadata={"description": "JWT access token"})
-    token_type = fields.Str(required=True, dump_only=True, metadata={"description": "Token type"}, default="bearer")
+    token_type = fields.Str(required=True, dump_only=True, metadata={"description": "Token type"}, dump_default="bearer")

@@ -11,7 +11,8 @@ blp = Blueprint("Blogs", "blogs", url_prefix="/blogs", description="Blog posts C
 def _paginate(query):
     page = int(request.args.get("page", 1))
     per_page = min(int(request.args.get("per_page", 20)), 100)
-    return query.paginate(page=page, per_page=per_page, error_out=False)
+    # Flask-SQLAlchemy 3.x: use db.paginate instead of Query.paginate
+    return db.paginate(query, page=page, per_page=per_page, error_out=False)
 
 @blp.route("/")
 class BlogCollection(MethodView):
@@ -57,7 +58,18 @@ class BlogItem(MethodView):
     @blp.response(200, BlogSchema)
     @blp.doc(summary="Get blog", description="Get a blog post by ID. Unpublished posts require admin.")
     def get(self, blog_id: int):
+        """Fetch a blog post by ID. If the post is unpublished, admin privileges are required."""
         post = BlogPost.query.get_or_404(blog_id)
+        # If the post is not published, require an admin JWT
+        if not post.is_published:
+            try:
+                from flask_jwt_extended import verify_jwt_in_request, get_jwt
+                verify_jwt_in_request()
+                claims = get_jwt() or {}
+                if not claims.get("is_admin"):
+                    return {"message": "Admin privileges required"}, 403
+            except Exception:
+                return {"message": "Admin privileges required"}, 403
         return post
 
     # PUBLIC_INTERFACE
